@@ -1,37 +1,117 @@
+# Model Deployment
 
-# Deploying Models
+This module contains the Flask web service for serving the NYC Taxi trip duration prediction model.
 
-- Create a predict.py file that contains the model loading and prediction logic
-- Use Flask to create a web service that can handle HTTP requests for predictions
-- Use a WSGI server like Gunicorn or uWSGI to serve the Flask app in production
-- create a requirements.txt file with all the dependencies `pip list --format=freeze > requirements.txt`
-- Use Docker to containerize the application for easy deployment and scaling
-- Copy models in the build context i.e. same directory or in subdirectory as of dockerfile.
-- `docker build . -t trip_duration_predictor_service:v1`
-## Over Flask
+## 🚀 Quick Start
 
-# Flask
- - Lightweight, easy to use python framework for building web applications and APIs
- - Let's easily covnert Python code, models, data pipelines into a web service that other code can interact with over HTTP
- - Great for quick prototyping, low traffic deployment, demo apps, 
- - Stable and widely used for production APIs at many small-scale companies
+### Prerequisites
+- Python 3.8 or higher
+- Required model files: `XGBoost_Best_Model.pkl` and `data_preprocessor_obj.pkl`
 
-## Key Features
-- Low Code to create APIs
-- Flexibility: Works with any ML/DL framework (TensorFlow, PyTorch, Scikit-learn, etc.)
-- Ecosystem: Easily adds api docs, auth, monitoring
+### Setup and Installation
 
-## Use-Cases
-- Serving Models as API over HTTP i.e. "http://localhost:5000/predict"
-- Batch Scoring Triggers
-- MLOps Metrics
-- Prototyping Real Data
+1. **Create and activate virtual environment:**
+```bash
+python -m venv venv
+source venv/bin/activate  # On Windows: venv\Scripts\activate
+```
 
-## How flask should deployed at production
-- Use it with gunicorn or uWSGI to handle multiple requests
+2. **Install dependencies:**
+```bash
+cd 04-deployment/web-service-flask
+pip install -r requirements.txt
+```
 
-### gunicorn
-- > pip isntall gunicorn
-- Dont run flask app directly in production
-- Run with gunicorn to handle multiple requests
-- > gunicorn --bind=0.0.0.0:9696 predict:app
+3. **Set environment variables (optional):**
+```bash
+export MODEL_ARTIFACT_DIR="./path/to/models/"
+export FLASK_DEBUG="False"
+export FLASK_HOST="0.0.0.0"
+export FLASK_PORT="9696"
+```
+
+4. **Run the service:**
+```bash
+python src/predict.py
+```
+
+### 🐳 Docker Deployment
+
+1. **Build Docker image:**
+```bash
+docker build . -t trip_duration_predictor_service:v1
+```
+
+2. **Run container:**
+```bash
+docker run -p 9696:9696 -e FLASK_DEBUG=False trip_duration_predictor_service:v1
+```
+
+### 📋 API Usage
+
+#### Health Check
+```bash
+curl http://localhost:9696/health
+```
+
+#### Make Prediction
+```bash
+curl -X POST http://localhost:9696/predict \
+  -H "Content-Type: application/json" \
+  -d '{
+    "PULocationID": 1,
+    "DOLocationID": 2,
+    "trip_distance": 5.2
+  }'
+```
+
+**Response:**
+```json
+{
+  "duration": 18.5
+}
+```
+
+### 🔧 Configuration
+
+| Environment Variable | Default | Description |
+|---------------------|---------|-------------|
+| `MODEL_ARTIFACT_DIR` | `./` | Directory containing model files |
+| `FLASK_DEBUG` | `False` | Enable debug mode (never use True in production) |
+| `FLASK_HOST` | `0.0.0.0` | Host to bind the service |
+| `FLASK_PORT` | `9696` | Port to bind the service |
+
+### 🏭 Production Deployment
+
+**Using Gunicorn (Recommended):**
+```bash
+pip install gunicorn
+gunicorn --bind=0.0.0.0:9696 --workers=4 src.predict:app
+```
+
+**Performance Tips:**
+- Use multiple workers (`--workers=4`) for better concurrency
+- Models are loaded once at startup for optimal performance
+- Monitor `/health` endpoint for service status
+
+## 📊 About Flask
+
+Flask is a lightweight Python web framework perfect for ML model deployment:
+
+### ✅ Advantages
+- **Low Code**: Minimal code to create APIs
+- **Flexibility**: Works with any ML/DL framework
+- **Ecosystem**: Easy integration with monitoring, authentication
+- **Prototyping**: Great for quick demos and prototypes
+
+### 🎯 Use Cases
+- Serving models as REST APIs
+- Batch scoring triggers
+- MLOps metrics collection
+- Real-time predictions
+
+### ⚠️ Production Considerations
+- Always use a WSGI server (Gunicorn/uWSGI) in production
+- Never set `debug=True` in production
+- Implement proper logging and monitoring
+- Use load balancers for high availability
