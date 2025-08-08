@@ -2,7 +2,9 @@
 import os
 import pickle
 import logging
+from typing import Dict, Any, Tuple, Union
 import xgboost as xgb
+import numpy as np
 from flask import Flask, request, jsonify
 
 # Configure logging
@@ -11,6 +13,11 @@ logger = logging.getLogger(__name__)
 
 app = Flask("duration-prediction")
 
+# Global variables to store loaded models
+_data_preprocessor_obj = None
+_model_obj = None
+_models_loaded = False
+
 
 #cwd = "/Users/vss/Personal/Git/MLOps_EndtoEnd_NYC_Taxi/"
 #artifact_dir = f"{cwd}/03-orchestration/airflow_docker/data/mlflow_artifacts/models/"
@@ -18,7 +25,7 @@ artifact_dir = os.getenv("MODEL_ARTIFACT_DIR", "./")
 model_location = f"{artifact_dir}XGBoost_Best_Model.pkl"
 preprocessor_location = f"{artifact_dir}data_preprocessor_obj.pkl"
 
-def load_models(model_location, preprocessor_location):
+def load_models(model_location: str, preprocessor_location: str) -> Tuple[Any, Any]:
     """
     Load the preprocessor and model objects from the specified locations.
     :param model_location: Path to the model file
@@ -50,7 +57,40 @@ def load_models(model_location, preprocessor_location):
         raise
 
 
-def prepare_features(request):
+def initialize_models() -> None:
+    """
+    Initialize models at application startup.
+    This function loads models once and stores them in global variables.
+    """
+    global _data_preprocessor_obj, _model_obj, _models_loaded
+    
+    try:
+        if not _models_loaded:
+            logger.info("Initializing models at startup...")
+            _data_preprocessor_obj, _model_obj = load_models(model_location, preprocessor_location)
+            _models_loaded = True
+            logger.info("Models initialized successfully")
+    except Exception as e:
+        logger.error(f"Failed to initialize models: {str(e)}")
+        _models_loaded = False
+        raise
+
+
+def get_models() -> Tuple[Any, Any]:
+    """
+    Get the loaded models. If not loaded, initialize them.
+    :return: Tuple of (preprocessor, model) objects
+    :raises: Exception if models can't be loaded
+    """
+    global _data_preprocessor_obj, _model_obj, _models_loaded
+    
+    if not _models_loaded:
+        initialize_models()
+    
+    return _data_preprocessor_obj, _model_obj
+
+
+def prepare_features(request: Dict[str, Any]) -> Dict[str, Union[str, float]]:
     """
     Prepare the features for prediction.
     :param request: Dictionary containing input features
@@ -79,7 +119,7 @@ def prepare_features(request):
         raise
 
 
-def transform_features(data_preprocessor_obj, request):
+def transform_features(data_preprocessor_obj: Any, request: Dict[str, Union[str, float]]) -> Any:
     """
     Transform the input request using the preprocessor object.
     :param data_preprocessor_obj: Fitted preprocessor object
@@ -96,7 +136,7 @@ def transform_features(data_preprocessor_obj, request):
         raise
 
 
-def predict(model_obj, X):
+def predict(model_obj: Any, X: Any) -> np.ndarray:
     """
     Make prediction using the model.
     :param model_obj: Trained model object
@@ -114,7 +154,7 @@ def predict(model_obj, X):
         raise
 
 
-def predict_duration(request):
+def predict_duration(request: Dict[str, Any]) -> np.ndarray:
     """
     Predict the duration based on the input request.
     :param request: Dictionary containing trip information
@@ -122,7 +162,8 @@ def predict_duration(request):
     :raises: Exception if any step fails
     """
     try:
-        data_preprocessor_obj, model_obj = load_models(model_location, preprocessor_location)
+        # Use cached models instead of loading on every request
+        data_preprocessor_obj, model_obj = get_models()
         
         prepared_request = prepare_features(request)
         
@@ -194,17 +235,20 @@ def health_check():
             os.path.exists(preprocessor_location)
         )
         
-        if models_exist:
-            return jsonify({
-                "status": "healthy",
-                "model_location": model_location,
-                "preprocessor_location": preprocessor_location
-            }), 200
+        status_info = {
+            "status": "healthy" if models_exist and _models_loaded else "unhealthy",
+            "models_loaded": _models_loaded,
+            "model_location": model_location,
+            "preprocessor_location": preprocessor_location,
+            "model_files_exist": models_exist
+        }
+        
+        if models_exist and _models_loaded:
+            return jsonify(status_info), 200
         else:
-            return jsonify({
-                "status": "unhealthy", 
-                "error": "Model files not found"
-            }), 503
+            status_info["error"] = "Models not loaded or files not found"
+            return jsonify(status_info), 503
+            
     except Exception as e:
         logger.error(f"Health check failed: {str(e)}")
         return jsonify({
@@ -219,4 +263,13 @@ if __name__ == "__main__":
     port = int(os.getenv("FLASK_PORT", "9696"))
     
     logger.info(f"Starting Flask app on {host}:{port}, debug={debug_mode}")
+    
+    # Initialize models at startup for better performance
+    try:
+        initialize_models()
+        logger.info("Application startup completed successfully")
+    except Exception as e:
+        logger.error(f"Failed to initialize models at startup: {str(e)}")
+        logger.warning("Application will start but models will be loaded on first request")
+    
     app.run(debug=debug_mode, host=host, port=port)
