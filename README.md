@@ -1,14 +1,14 @@
 
 
-# MLOps Training Using NYC Taxi Dataset
+# MLOps: Trip Duration Prediction for NYC Yellow Taxi Dataset
 
 This tutorial is based on MLops Zoomcamp course "https://github.com/DataTalksClub/mlops-zoomcamp/tree/main".
 
-Demonstrates end-to-end MLOps workflow using the NYC Taxi dataset, covering data preparation, model training, evaluation,
-and deployment, for small dataset.
+Demonstrates end-to-end MLOps workflow
 
-Tools covered:
-- MLFlow for experiment tracking and model management
-- Airflow for model deployment
+MLOps Concepts Covered:
+- Experiment tracking and model management Using MLflow
+- Workflow orchestration using Apache Airflow 
+  - Running Apache Airflow on Docker
 - Docker for containerization
 - Flask for serving the model
