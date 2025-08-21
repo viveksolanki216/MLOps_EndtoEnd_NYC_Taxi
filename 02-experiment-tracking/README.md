@@ -1,23 +1,15 @@
-
-
-
-
-
-# MLFlow
-Open-source platform for managing ML life-cycle including experimentation, reproducibility, model registry and deployment
-
-
-## Topics Covered In this Section
+# Topics Covered In this Section
+- Introduction to MLFlow
 - Experiment Tracking Using MLFlow
-- Model Management/Registry Using MLFlow
-
-We will learn about:
-- How to track experiments using MLFlow
    - How to start a mlflow tracking server providing metadata store and artifacts store
    - How to log parameters, metrics, artifacts and models for a single run and multiple runs for hyperparameter tuning
    - How to use autologging
-      
-# Key-Use Cases
+- Model Management/Registry Using MLFlow
+
+## MLFlow
+Open-source platform for managing ML life-cycle including experimentation, reproducibility, model registry and deployment
+
+### Key-Use Cases
 - Model Experimentation Tracking
   -	Reproducibility: Stores parameters, hyper-parameters, model performance metrics
   -	Lineage: Paths for input data, output model packages
@@ -33,7 +25,7 @@ which are now essential for production-grade ML.
 -	We run the same jupyter notebook changing settings for model training, either save previous runs stats in excel sheets or do not track at all. It becomes chaotic to manage all these experiments given we can run 100s of model in today’s processing power era. We may not reproduce the previous good models or loose lineage of it.
 -	Centralized view of experiment history: difficult to collaborate before, no other teams currently/in future can see the efforts that already made.
 
-## Model Registry
+### Model Registry
 A central repository for managing ML models, versions, and metadata.
  - Central Model Store: Share models across teams and tools
  - Version Control: Trace model versions
@@ -48,7 +40,7 @@ Where Model Registry is used?
 - Collaboration: Share models with other teams, tools, and environments. View + Comments on models
 
 
-## Tracking Server
+### Tracking Server
 What is a tracking server & Why need a tracking server?
 - A central API endpoint for logging and retrieving ML Experiments.
 - Useful when you run  across multiple machines or in a distributed environment or team members.
@@ -61,7 +53,7 @@ MLFlow still logs data if the tracking server is not running?
 - And then see everything via the UI by running `mlflow ui` command.
 - Recommended only if local dev, solo experiments, is not recommended for production use
 
-## Metadata Store (Backend Store)
+### Metadata Store (Backend Store)
 Saves metadata about experiments, runs, parameters, metrics, artifacts, etc. Keeps structured information.
 
 - **Local Development** Solo User Experiments: 
@@ -79,7 +71,7 @@ Saves metadata about experiments, runs, parameters, metrics, artifacts, etc. Kee
 - **Advanced Entrprise Grade** 
   - Remote SQL databases + Authentication
 
-## Artifact Store
+### Artifact Store
 Stores output files of experiments: trained models (.pkl, .onnx, etc.), logs, plots, feature importance files.
  - Local Folder: `--default-artifact-root ./artifacts`
 
@@ -99,5 +91,5 @@ nohup mlflow server  \
 --port 5000 > mlflow.log 2>&1 &
 
 
-## Setting up a Tracking Server on an EC2 instance with PostgreSQL on AWS RDS and S3 for Artifacts
+#### Setting up a Tracking Server on an EC2 instance with PostgreSQL on AWS RDS and S3 for Artifacts
 Check Scenario-3 Jupuy Notebook for a complete setup example.
