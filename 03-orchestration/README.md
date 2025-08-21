@@ -1,11 +1,12 @@
 
+# Topics Covered In this Section
+- Introduction to Airflow
+- Running Apache Airflow Server on Docker
+- Create ML Pipeline DAGs in Airflow
+
 # Airflow
 Is a general-purpose complex workflow orchestration tool that can also be used to manage and automate ML pipelines. 
 Youtube Tutorial Refernce: https://www.youtube.com/watch?v=mtJHMdoi_Gg&list=PLwFJcsJ61oujAqYpMp1kdUBcPG0sE0QMT&index=4
-
-What is covered in this section:
-- Running Apache Airflow Server on Docker
-- Create ML Pipeline DAGs in Airflow
 
 Important concepts:
 - **DAG (Directed Acyclic Graph)**: Represents the workflow as a series of tasks and their dependencies
