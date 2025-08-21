@@ -1,5 +1,5 @@
 
-# Deploying Models
+# Deploying Models Over Flask
 
 - Create a predict.py file that contains the model loading and prediction logic
 - Use Flask to create a web service that can handle HTTP requests for predictions
@@ -8,7 +8,7 @@
 - Use Docker to containerize the application for easy deployment and scaling
 - Copy models in the build context i.e. same directory or in subdirectory as of dockerfile.
 - `docker build . -t trip_duration_predictor_service:v1`
-## Over Flask
+
 
 # Flask
  - Lightweight, easy to use python framework for building web applications and APIs
