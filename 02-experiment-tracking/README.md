@@ -6,6 +6,17 @@
 # MLFlow
 Open-source platform for managing ML life-cycle including experimentation, reproducibility, model registry and deployment
 
+
+## Topics Covered In this Section
+- Experiment Tracking Using MLFlow
+- Model Management/Registry Using MLFlow
+
+We will learn about:
+- How to track experiments using MLFlow
+   - How to start a mlflow tracking server providing metadata store and artifacts store
+   - How to log parameters, metrics, artifacts and models for a single run and multiple runs for hyperparameter tuning
+   - How to use autologging
+      
 # Key-Use Cases
 - Model Experimentation Tracking
   -	Reproducibility: Stores parameters, hyper-parameters, model performance metrics
